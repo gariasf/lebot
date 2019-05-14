@@ -1,0 +1,23 @@
+{
+    "presets": [
+        [
+            "@babel/env",
+            {
+                "targets": {
+                    "node": true
+                },
+            }
+        ],
+        "minify"
+    ],
+    "plugins": [
+        [
+            "@babel/transform-runtime",
+            {
+                "regenerator": true
+            }
+        ],
+       
+    ],
+    "comments": false
+}

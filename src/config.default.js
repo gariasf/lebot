@@ -1,0 +1,4 @@
+const BOT_TOKEN = '';
+const MONGO_CONNECTION_STRING = '';
+
+export { BOT_TOKEN, MONGO_CONNECTION_STRING };

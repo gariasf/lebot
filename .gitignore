@@ -1,0 +1,4 @@
+nod*-error.log
+node_modules
+dist/*
+src/config.js
