@@ -1,8 +1,8 @@
 {
-  "name": "warebot",
+  "name": "lebot",
   "version": "0.1.0",
   "main": "./src/index.js",
-  "repository": "https://github.com/gariasf/TelegramBot.git",
+  "repository": "https://github.com/gariasf/lebot. .git",
   "author": "Guillem Arias <hello@gariasf.com>",
   "license": "MIT",
   "scripts": {
