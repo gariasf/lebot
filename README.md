@@ -4,7 +4,7 @@ telegram bot
 
 ## How to use
 
-```javascript
+```
 // Install node modules
 yarn
 
