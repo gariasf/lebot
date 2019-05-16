@@ -48,6 +48,11 @@ export default class ChatHandler {
   }
 
   disableShutUp(chatId) {
+    if (this.shutUpUntil === null) {
+      this.sendMessage(chatId, 'Si ya puedo hablar, que intentas mongolo');
+      return;
+    }
+
     this.shutUpUntil = null;
     this.sendMessage(
       chatId,
