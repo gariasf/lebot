@@ -139,6 +139,10 @@ export default class ChatHandler {
       await this.apiBot.sendMessage(chatId, spamMessage);
     } else {
       console.log("Can't spam private chat");
+      this.apiBot.sendMessage(
+        chatId,
+        'A quien quieres spamear, si solo estamos tu y yo jajajajaj'
+      );
     }
   }
 
@@ -155,6 +159,10 @@ export default class ChatHandler {
       );
       this.sendAdminSpam(chatId, chatType);
     } else {
+      this.apiBot.sendMessage(
+        chatId,
+        '/start "humano de mierda", que cojones intentas?'
+      );
       console.log("Can't react to a game in private");
     }
   }
