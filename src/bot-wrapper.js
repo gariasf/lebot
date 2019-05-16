@@ -11,6 +11,8 @@ import {
   ADMIN_SPAM_REGEX,
   START_GAME_REGEX,
   SAY_THIS_REGEX,
+  SHUT_UP_REGEX,
+  BOT_CAN_TALK_REGEX,
   OLD_MESSAGES_THRESHOLD
 } from './consts';
 
@@ -78,13 +80,21 @@ export default class BotWrapper {
     const messageTriggersSendDog = SEND_DOG_REGEX.test(messageContent);
     const messageTriggersStartGame = START_GAME_REGEX.test(messageContent);
     const messageTriggersSayThis = SAY_THIS_REGEX.test(messageContent);
+    const messageTrigersShupUp = SHUT_UP_REGEX.test(messageContent);
+    const messageTriggersDisableShutup = BOT_CAN_TALK_REGEX.test(
+      messageContent
+    );
 
     if (!isTextMessage || isOldMessage) {
       console.info('Non-text or old message detected, skipping...');
       return;
     }
 
-    if (messageTriggersForgetPhrase) {
+    if (messageTrigersShupUp) {
+      ChatHandlerInstance.shutUp(messageContent, chatId);
+    } else if (messageTriggersDisableShutup) {
+      ChatHandlerInstance.disableShutUp(chatId);
+    } else if (messageTriggersForgetPhrase) {
       ChatHandlerInstance.deletePhrase(messageContent, chatId);
     } else if (messageTriggersNewPhrase) {
       ChatHandlerInstance.learnNewPhrase(messageContent, chatId);

@@ -5,14 +5,54 @@ import { BotWrapperInstance, PhrasesHandlerInstance } from './instance-handler';
 import {
   FORGET_PHRASE_REGEX,
   SAY_THIS_REGEX,
+  SHUT_UP_REGEX,
   CAT_API_URI,
   CAT_GIF_API_URI,
-  DOG_API_URI
+  DOG_API_URI,
+  DEFAULT_SHUTUP_INTERVAL
 } from './consts';
 
 export default class ChatHandler {
   constructor() {
     this.apiBot = BotWrapperInstance.getBotApiInstance();
+    this.shutUpUntil = null;
+  }
+
+  shutUp(mesageContent, chatId) {
+    if (this.shutUpUntil !== null) {
+      return;
+    }
+
+    const specifiedInterval =
+      SHUT_UP_REGEX.exec(mesageContent).groups.interval ||
+      DEFAULT_SHUTUP_INTERVAL;
+
+    if (specifiedInterval >= Number.MAX_SAFE_INTEGER - 1) {
+      this.sendMessage(
+        chatId,
+        `Onde vas, espavilao, que te crees que me puedes destruir así de facil o que? Pff, puto principiante de mierda. Intentalo de nuevo, no hay huevos.`
+      );
+    }
+
+    const nowEpoch = new Date(Date.now()).getTime();
+    const nowPlusIntervalEpoch = nowEpoch + specifiedInterval * 60000;
+
+    this.sendMessage(
+      chatId,
+      `Ok, tienes ${specifiedInterval} minuto${
+        specifiedInterval > 1 ? 's' : ''
+      } antes de que mis palabras te destruyan`
+    );
+
+    this.shutUpUntil = nowPlusIntervalEpoch;
+  }
+
+  disableShutUp(chatId) {
+    this.shutUpUntil = null;
+    this.sendMessage(
+      chatId,
+      "Ueeeee ya puedo hablaaaar, ahi os caiga un piano encima cohone'!"
+    );
   }
 
   /**
@@ -21,9 +61,21 @@ export default class ChatHandler {
    * @param {string} content
    */
   sendMessage(chatId, content) {
+    if (this.isShutUp()) {
+      return;
+    } else {
+      this.shutUpUntil = null;
+    }
+
     this.apiBot.sendMessage(chatId, content).catch(err => {
       console.error(err);
     });
+  }
+
+  isShutUp() {
+    const nowEpoch = new Date(Date.now()).getTime();
+
+    return this.shutUpUntil !== null && nowEpoch < this.shutUpUntil;
   }
 
   /**
@@ -120,6 +172,13 @@ export default class ChatHandler {
    * @param {number} chatId
    */
   async sendAdminSpam(chatId, chatType) {
+    // TODO: Refactor repeated code (I don't like how this is handled)
+    if (this.isShutUp()) {
+      return;
+    } else {
+      this.shutUpUntil = null;
+    }
+
     if (chatType === 'group' || chatType === 'supergroup') {
       const chatAdminUserList = await this.apiBot
         .getChatAdministrators(chatId)
@@ -152,6 +211,13 @@ export default class ChatHandler {
    * @param {string} chatType
    */
   reactToNewGame(chatId, chatType) {
+    // TODO: Refactor repeated code (I don't like how this is handled)
+    if (this.isShutUp()) {
+      return;
+    } else {
+      this.shutUpUntil = null;
+    }
+
     if (chatType === 'group' || chatType === 'supergroup') {
       this.sendMessage(
         chatId,
