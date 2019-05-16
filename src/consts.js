@@ -1,4 +1,4 @@
-export const NEW_PHRASE_REGEX = /(trufa|amigo) aprende a contestar "(?<response>.+)" cuando digan "(?<trigger>.+)"/;
+export const NEW_PHRASE_REGEX = /(trufa|amigo) aprende a contestar "(?<response>.+)" cuando digan "(?<trigger>.+)"/i;
 export const FORGET_PHRASE_REGEX = /(trufa|amigo) olvidate de "(?<trigger>.+)"/i;
 export const SEND_CAT_REGEX = /(trufa|amigo) dame un gato/i;
 export const SEND_DOG_REGEX = /(trufa|amigo) dame un perro/i;

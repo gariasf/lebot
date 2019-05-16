@@ -93,7 +93,7 @@ export default class BotWrapper {
         ? ChatHandlerInstance.sendCatGif(chatId)
         : ChatHandlerInstance.sendDogGif(chatId);
     } else if (messageTriggersAdminSpam) {
-      ChatHandlerInstance.sendAdminSpam(chatId, isGroup);
+      ChatHandlerInstance.sendAdminSpam(chatId, chatType);
     } else if (messageTriggersStartGame) {
       ChatHandlerInstance.reactToNewGame(chatId, chatType);
     } else if (messageTriggersSayThis) {

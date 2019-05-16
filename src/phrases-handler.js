@@ -11,7 +11,9 @@ export default class PhrasesManager {
     const phrases = await DbWrapperInstance.getAllFromCollection('phrases');
 
     return phrases
-      .filter(result => messageContent.includes(result.trigger))
+      .filter(result =>
+        messageContent.toLowerCase().includes(result.trigger.toLowerCase())
+      )
       .map(phrase => phrase.response);
   }
 
