@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 
 import { BotWrapperInstance, PhrasesHandlerInstance } from './instance-handler';
+import { chunkArray } from './utils';
 
 import {
   FORGET_PHRASE_REGEX,
@@ -18,6 +19,11 @@ export default class ChatHandler {
     this.shutUpUntil = null;
   }
 
+  /**
+   * Configure the bot to shut up during the specified time or 1 minute by default
+   * @param {string} mesageContent
+   * @param {number} chatId
+   */
   shutUp(mesageContent, chatId) {
     if (this.shutUpUntil !== null) {
       return;
@@ -40,6 +46,10 @@ export default class ChatHandler {
     this.shutUpUntil = nowPlusIntervalEpoch;
   }
 
+  /**
+   * Manually disable "shut up" satate
+   * @param {number} chatId
+   */
   disableShutUp(chatId) {
     if (this.shutUpUntil === null) {
       this.sendMessage(chatId, 'Si ya puedo hablar, que intentas mongolo');
@@ -51,6 +61,15 @@ export default class ChatHandler {
       chatId,
       "Ueeeee ya puedo hablaaaar, ahi os caiga un piano encima cohone'!"
     );
+  }
+
+  /**
+   * Determine if the bot can send a message
+   */
+  isShutUp() {
+    const nowEpoch = new Date(Date.now()).getTime();
+
+    return this.shutUpUntil !== null && nowEpoch < this.shutUpUntil;
   }
 
   /**
@@ -68,12 +87,6 @@ export default class ChatHandler {
     this.apiBot.sendMessage(chatId, content, keyBoardOptions).catch(err => {
       console.error(err);
     });
-  }
-
-  isShutUp() {
-    const nowEpoch = new Date(Date.now()).getTime();
-
-    return this.shutUpUntil !== null && nowEpoch < this.shutUpUntil;
   }
 
   /**
@@ -104,20 +117,6 @@ export default class ChatHandler {
       .then(result => {
         this.apiBot.sendPhoto(chatId, result.message);
       });
-  }
-
-  chunkArray(myArray, chunk_size) {
-    var index = 0;
-    var arrayLength = myArray.length;
-    var tempArray = [];
-
-    for (index = 0; index < arrayLength; index += chunk_size) {
-      let myChunk = myArray.slice(index, index + chunk_size);
-      // Do something if you want with the group
-      tempArray.push(myChunk);
-    }
-
-    return tempArray;
   }
 
   /**
@@ -154,7 +153,7 @@ export default class ChatHandler {
         );
       }
     } else {
-      let selectMessagePhraseList = `T: ${phraseTrigger}\nQue frase quieres eliminar?\n`;
+      let selectPhraseListMessage = `T: ${phraseTrigger}\nQue frase quieres eliminar?\n`;
 
       let inlineKeyboardButtons = triggerResponseArray.map((keyPair, index) => {
         return {
@@ -166,13 +165,13 @@ export default class ChatHandler {
         };
       });
 
-      inlineKeyboardButtons = this.chunkArray(inlineKeyboardButtons, 8);
+      inlineKeyboardButtons = chunkArray(inlineKeyboardButtons, 8);
 
       triggerResponseArray.forEach((phraseKeyPair, index) => {
-        selectMessagePhraseList += `\n${index + 1}- ${phraseKeyPair.response}`;
+        selectPhraseListMessage += `\n${index + 1}- ${phraseKeyPair.response}`;
       });
 
-      this.sendMessage(chatId, selectMessagePhraseList, {
+      this.sendMessage(chatId, selectPhraseListMessage, {
         reply_markup: {
           inline_keyboard: inlineKeyboardButtons
         }
@@ -180,6 +179,12 @@ export default class ChatHandler {
     }
   }
 
+  /**
+   * Handle phrase deletion coming from an inline keyboard callback
+   * @param {number} chatId
+   * @param {string} originalMessageText
+   * @param {number} phraseIndexInarray
+   */
   async fromCallbackDeletePhrase(
     chatId,
     originalMessageText,
@@ -189,13 +194,9 @@ export default class ChatHandler {
     const phraseTrigger = /T: (?<trigger>.*)\n.+/im.exec(originalMessageText)
       .groups.trigger;
 
-    console.log(phraseTrigger);
-
     const triggerResponseArray = await PhrasesHandlerInstance.getTriggerMatchingPhrases(
       phraseTrigger
     );
-
-    console.log(triggerResponseArray);
 
     deletionResult = await PhrasesHandlerInstance.removePhrase(
       triggerResponseArray[phraseIndexInarray]
