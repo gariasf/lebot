@@ -27,13 +27,6 @@ export default class ChatHandler {
       SHUT_UP_REGEX.exec(mesageContent).groups.interval ||
       DEFAULT_SHUTUP_INTERVAL;
 
-    if (specifiedInterval >= Number.MAX_SAFE_INTEGER - 1) {
-      this.sendMessage(
-        chatId,
-        `Onde vas, espavilao, que te crees que me puedes destruir así de facil o que? Pff, puto principiante de mierda. Intentalo de nuevo, no hay huevos.`
-      );
-    }
-
     const nowEpoch = new Date(Date.now()).getTime();
     const nowPlusIntervalEpoch = nowEpoch + specifiedInterval * 60000;
 
@@ -65,14 +58,14 @@ export default class ChatHandler {
    * @param {number} chatId
    * @param {string} content
    */
-  sendMessage(chatId, content) {
+  sendMessage(chatId, content, keyBoardOptions = {}) {
     if (this.isShutUp()) {
       return;
     } else {
       this.shutUpUntil = null;
     }
 
-    this.apiBot.sendMessage(chatId, content).catch(err => {
+    this.apiBot.sendMessage(chatId, content, keyBoardOptions).catch(err => {
       console.error(err);
     });
   }
@@ -113,12 +106,26 @@ export default class ChatHandler {
       });
   }
 
+  chunkArray(myArray, chunk_size) {
+    var index = 0;
+    var arrayLength = myArray.length;
+    var tempArray = [];
+
+    for (index = 0; index < arrayLength; index += chunk_size) {
+      let myChunk = myArray.slice(index, index + chunk_size);
+      // Do something if you want with the group
+      tempArray.push(myChunk);
+    }
+
+    return tempArray;
+  }
+
   /**
    * Phrase deletion interaction
    * @param {string} messageContent
    * @param {number} chatId
    */
-  async deletePhrase(messageContent, chatId) {
+  async deletePhrase(messageContent, chatId, chatType) {
     let deletionResult = false;
     const phraseTrigger = FORGET_PHRASE_REGEX.exec(messageContent).groups
       .trigger;
@@ -126,13 +133,73 @@ export default class ChatHandler {
       phraseTrigger
     );
 
-    if (triggerResponseArray.length === 1) {
+    if (chatType !== 'private') {
+      this.sendMessage(
+        chatId,
+        'Estas cosas por privado, un poco más de discreción joder'
+      );
+    } else if (triggerResponseArray.length === 0) {
+      this.sendMessage(chatId, 'Sorry dude, ese trigger no existe');
+    } else if (triggerResponseArray.length === 1) {
       deletionResult = await PhrasesHandlerInstance.removePhrase(
         triggerResponseArray[0]
       );
+
+      if (deletionResult) {
+        this.sendMessage(chatId, 'Frase eliminada!');
+      } else {
+        this.sendMessage(
+          chatId,
+          'A ver, o la frase no existe o me ha explotado el cerebro, una de dos...'
+        );
+      }
     } else {
-      // ask for which one
+      let selectMessagePhraseList = `T: ${phraseTrigger}\nQue frase quieres eliminar?\n`;
+
+      let inlineKeyboardButtons = triggerResponseArray.map((keyPair, index) => {
+        return {
+          text: index + 1,
+          callback_data: JSON.stringify({
+            command: 'deletePhrase',
+            phraseIndexInarray: index
+          })
+        };
+      });
+
+      inlineKeyboardButtons = this.chunkArray(inlineKeyboardButtons, 8);
+
+      triggerResponseArray.forEach((phraseKeyPair, index) => {
+        selectMessagePhraseList += `\n${index + 1}- ${phraseKeyPair.response}`;
+      });
+
+      this.sendMessage(chatId, selectMessagePhraseList, {
+        reply_markup: {
+          inline_keyboard: inlineKeyboardButtons
+        }
+      });
     }
+  }
+
+  async fromCallbackDeletePhrase(
+    chatId,
+    originalMessageText,
+    phraseIndexInarray
+  ) {
+    let deletionResult = false;
+    const phraseTrigger = /T: (?<trigger>.*)\n.+/im.exec(originalMessageText)
+      .groups.trigger;
+
+    console.log(phraseTrigger);
+
+    const triggerResponseArray = await PhrasesHandlerInstance.getTriggerMatchingPhrases(
+      phraseTrigger
+    );
+
+    console.log(triggerResponseArray);
+
+    deletionResult = await PhrasesHandlerInstance.removePhrase(
+      triggerResponseArray[phraseIndexInarray]
+    );
 
     if (deletionResult) {
       this.sendMessage(chatId, 'Frase eliminada!');
@@ -149,7 +216,16 @@ export default class ChatHandler {
    * @param {string} messageContent
    * @param {number} chatId
    */
-  async learnNewPhrase(messageContent, chatId) {
+  async learnNewPhrase(messageContent, chatId, chatType) {
+    if (chatType !== 'private') {
+      this.sendMessage(
+        chatId,
+        'Dónde está tu sensibilidad? Dime eso por privado, no hay huevos'
+      );
+
+      return;
+    }
+
     const learnPhraseResult = await PhrasesHandlerInstance.learnNewPhrase(
       messageContent
     );
@@ -200,10 +276,10 @@ export default class ChatHandler {
         }
       });
 
-      await this.apiBot.sendMessage(chatId, spamMessage);
+      await this.sendMessage(chatId, spamMessage);
     } else {
-      console.log("Can't spam private chat");
-      this.apiBot.sendMessage(
+      console.info("Can't spam private chat");
+      this.sendMessage(
         chatId,
         'A quien quieres spamear, si solo estamos tu y yo jajajajaj'
       );

@@ -45,6 +45,7 @@ export default class BotWrapper {
    */
   setupEventListeners() {
     this.apiBot.on('message', this.handleMessageEvent.bind(this));
+    this.apiBot.on('callback_query', this.handleCallbackQueryEvent.bind(this));
     this.apiBot.on('polling_error', this.handlePollingErrorEvent);
   }
 
@@ -95,9 +96,9 @@ export default class BotWrapper {
     } else if (messageTriggersDisableShutup) {
       ChatHandlerInstance.disableShutUp(chatId);
     } else if (messageTriggersForgetPhrase) {
-      ChatHandlerInstance.deletePhrase(messageContent, chatId);
+      ChatHandlerInstance.deletePhrase(messageContent, chatId, chatType);
     } else if (messageTriggersNewPhrase) {
-      ChatHandlerInstance.learnNewPhrase(messageContent, chatId);
+      ChatHandlerInstance.learnNewPhrase(messageContent, chatId, chatType);
     } else if (messageTriggersSendCat || messageTriggersSendDog) {
       messageTriggersSendCat
         ? ChatHandlerInstance.sendCatGif(chatId)
@@ -110,6 +111,19 @@ export default class BotWrapper {
       ChatHandlerInstance.sayThis(chatId, messageContent);
     } else {
       ChatHandlerInstance.getAndSendKnownPhrase(messageContent, chatId);
+    }
+  }
+
+  handleCallbackQueryEvent(callbackQueryEvent) {
+    const eventData = JSON.parse(callbackQueryEvent.data);
+    const eventOriginatorMessage = callbackQueryEvent.message;
+    const chatId = callbackQueryEvent.message.chat.id;
+    if (eventData.command == 'deletePhrase') {
+      ChatHandlerInstance.fromCallbackDeletePhrase(
+        chatId,
+        eventOriginatorMessage.text,
+        Number(eventData.phraseIndexInarray)
+      );
     }
   }
 
