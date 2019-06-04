@@ -7,11 +7,14 @@ import {
   FORGET_PHRASE_REGEX,
   SAY_THIS_REGEX,
   SHUT_UP_REGEX,
+  SEND_MEDIA_REGEX,
   CAT_API_URI,
   CAT_GIF_API_URI,
   DOG_API_URI,
   DEFAULT_SHUTUP_INTERVAL
 } from './consts';
+
+import { PIXBAY_TOKEN } from './config';
 
 export default class ChatHandler {
   constructor() {
@@ -87,6 +90,45 @@ export default class ChatHandler {
     this.apiBot.sendMessage(chatId, content, keyBoardOptions).catch(err => {
       console.error(err);
     });
+  }
+
+  sendMedia(chatId, messageContent) {
+    let searchUri = '';
+    const searchKey = SEND_MEDIA_REGEX.exec(messageContent).groups.searchKey;
+    const encodedSearchKey = '';
+    if (searchKey.includes('gato') || searchKey.includes('cat')) {
+      this.sendCatGif(chatId);
+      return;
+    }
+
+    if (searchKey.includes('perro') || searchKey.includes('dog')) {
+      this.sendDogGif(chatId);
+      return;
+    }
+
+    encodedSearchKey = searchKey
+      .split(' ')
+      .reduce((previousValue, currentValue) => {
+        if (currentValue.length > 2) {
+          return `${previousValue}+${currentValue}`;
+        }
+
+        return previousValue;
+      });
+
+    searchUri = `https://pixabay.com/api/?key=${PIXBAY_TOKEN}&q=${searchKey}`;
+
+    fetch(searchUri)
+      .then(response => response.json())
+      .then(result => {
+        const totalHits = result.hits.length;
+        if (totalHits > 0) {
+          const hitNumber = Math.floor(Math.random() * totalHits);
+          this.apiBot.sendPhoto(chatId, result.hits[hitNumber].largeImageURL);
+        } else {
+          this.apiBot.sendMessage(chatId, 'No hay nada de eso, pringad@.');
+        }
+      });
   }
 
   /**

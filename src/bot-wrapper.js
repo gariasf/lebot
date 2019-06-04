@@ -6,8 +6,7 @@ import { BOT_TOKEN } from './config';
 import {
   NEW_PHRASE_REGEX,
   FORGET_PHRASE_REGEX,
-  SEND_CAT_REGEX,
-  SEND_DOG_REGEX,
+  SEND_MEDIA_REGEX,
   ADMIN_SPAM_REGEX,
   START_GAME_REGEX,
   SAY_THIS_REGEX,
@@ -68,20 +67,16 @@ export default class BotWrapper {
   async handleMessageEvent(messageEvent) {
     const chatId = messageEvent.chat.id;
     const chatType = messageEvent.chat.type;
-    const messageContent = messageEvent.text;
+    let messageContent = messageEvent.text;
     const isOldMessage = this.isOldMessage(messageEvent);
-    const isTextMessage = Boolean(messageContent);
-    const isGif = Boolean(messageEvent.animation);
-    const isImage = Boolean(messageEvent.photo);
-    const isSticker = Boolean(messageEvent.sticker);
+    const isTextMessage = Boolean(messageEvent.text);
 
     const messageTriggersNewPhrase = NEW_PHRASE_REGEX.test(messageContent);
     const messageTriggersForgetPhrase = FORGET_PHRASE_REGEX.test(
       messageContent
     );
     const messageTriggersAdminSpam = ADMIN_SPAM_REGEX.test(messageContent);
-    const messageTriggersSendCat = SEND_CAT_REGEX.test(messageContent);
-    const messageTriggersSendDog = SEND_DOG_REGEX.test(messageContent);
+    const messageTriggersSendMedia = SEND_MEDIA_REGEX.test(messageContent);
     const messageTriggersStartGame = START_GAME_REGEX.test(messageContent);
     const messageTriggersSayThis = SAY_THIS_REGEX.test(messageContent);
     const messageTrigersShupUp = SHUT_UP_REGEX.test(messageContent);
@@ -94,6 +89,8 @@ export default class BotWrapper {
       return;
     }
 
+    messageContent = messageContent.toLowerCase();
+
     if (messageTrigersShupUp) {
       ChatHandlerInstance.shutUp(messageContent, chatId);
     } else if (messageTriggersDisableShutup) {
@@ -102,10 +99,8 @@ export default class BotWrapper {
       ChatHandlerInstance.deletePhrase(messageContent, chatId, chatType);
     } else if (messageTriggersNewPhrase) {
       ChatHandlerInstance.learnNewPhrase(messageContent, chatId, chatType);
-    } else if (messageTriggersSendCat || messageTriggersSendDog) {
-      messageTriggersSendCat
-        ? ChatHandlerInstance.sendCatGif(chatId)
-        : ChatHandlerInstance.sendDogGif(chatId);
+    } else if (messageTriggersSendMedia) {
+      ChatHandlerInstance.sendMedia(chatId, messageContent);
     } else if (messageTriggersAdminSpam) {
       ChatHandlerInstance.sendAdminSpam(chatId, chatType);
     } else if (messageTriggersStartGame) {
