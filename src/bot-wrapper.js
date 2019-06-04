@@ -71,6 +71,9 @@ export default class BotWrapper {
     const messageContent = messageEvent.text;
     const isOldMessage = this.isOldMessage(messageEvent);
     const isTextMessage = Boolean(messageContent);
+    const isGif = Boolean(messageEvent.animation);
+    const isImage = Boolean(messageEvent.photo);
+    const isSticker = Boolean(messageEvent.sticker);
 
     const messageTriggersNewPhrase = NEW_PHRASE_REGEX.test(messageContent);
     const messageTriggersForgetPhrase = FORGET_PHRASE_REGEX.test(

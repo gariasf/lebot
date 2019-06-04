@@ -1,7 +1,7 @@
 export const NEW_PHRASE_REGEX = /(trufa|amigo),? aprende a contestar "(?<response>.+)" cuando digan "(?<trigger>.+)"/i;
 export const FORGET_PHRASE_REGEX = /(trufa|amigo),? olvidate de "(?<trigger>.+)"/i;
-export const SEND_CAT_REGEX = /(trufa|amigo),? dame ?.* gato (.+)?/i;
-export const SEND_DOG_REGEX = /(trufa|amigo),? dame ?.* perro (.+)?/i;
+export const SEND_CAT_REGEX = /(.+)?trufa(.+)?dame(.+)?gato(.+)?/i;
+export const SEND_DOG_REGEX = /(.+)?trufa(.+)?dame(.+)?perro(.+)?/i;
 export const ADMIN_SPAM_REGEX = /(.+)?(patataspa)|((trufa|amigo),? spam(ea)?)(.+)?/i;
 export const START_GAME_REGEX = /^\/start(.+)?/i;
 export const SAY_THIS_REGEX = /(trufa|amigo),? di "(?<whattosay>.+)"/i;
