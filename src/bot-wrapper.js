@@ -118,10 +118,12 @@ export default class BotWrapper {
     const eventData = JSON.parse(callbackQueryEvent.data);
     const eventOriginatorMessage = callbackQueryEvent.message;
     const chatId = callbackQueryEvent.message.chat.id;
+    const callbackId = callbackQueryEvent.id;
 
     if (eventData.command == 'deletePhrase') {
       ChatHandlerInstance.fromCallbackDeletePhrase(
         chatId,
+        callbackId,
         eventOriginatorMessage.text,
         Number(eventData.phraseIndexInarray)
       );

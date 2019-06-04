@@ -187,6 +187,7 @@ export default class ChatHandler {
    */
   async fromCallbackDeletePhrase(
     chatId,
+    callbackId,
     originalMessageText,
     phraseIndexInarray
   ) {
@@ -204,6 +205,7 @@ export default class ChatHandler {
 
     if (deletionResult) {
       this.sendMessage(chatId, 'Frase eliminada!');
+      this.apiBot.answerCallbackQuery(callbackId);
     } else {
       this.sendMessage(
         chatId,
