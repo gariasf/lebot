@@ -262,22 +262,25 @@ export default class ChatHandler {
     }
 
     if (chatType === 'group' || chatType === 'supergroup') {
-      const chatAdminUserList = await this.apiBot
+      const chatAdminUserChunks = await this.apiBot
         .getChatAdministrators(chatId)
+        .then(adminList => chunkArray(adminList, 4))
         .catch(err => {
           console.error(err.body.description);
           return;
         });
 
-      let spamMessage = '';
+      chatAdminUserChunks.forEach(async adminUserChunk => {
+        let spamMessage = '';
 
-      chatAdminUserList.forEach(adminUser => {
-        if (adminUser.user.username) {
-          spamMessage += ` @${adminUser.user.username}`;
-        }
+        adminUserChunk.forEach(adminUser => {
+          if (adminUser.user.username) {
+            spamMessage += ` @${adminUser.user.username}`;
+          }
+        });
+
+        await this.sendMessage(chatId, spamMessage);
       });
-
-      await this.sendMessage(chatId, spamMessage);
     } else {
       console.info("Can't spam private chat");
       this.sendMessage(

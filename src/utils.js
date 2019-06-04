@@ -1,4 +1,4 @@
-export function chunkArray(myArray, chunk_size) {
+export function chunkArray(myArray, chunk_size = 4) {
   var index = 0;
   var arrayLength = myArray.length;
   var tempArray = [];
