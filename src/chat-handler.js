@@ -94,7 +94,6 @@ export default class ChatHandler {
 
   sendMedia(chatId, messageContent) {
     let searchUri = '';
-    // let encodedSearchKey = '';
 
     const searchKey = SEND_MEDIA_REGEX.exec(messageContent).groups.searchKey;
     if (searchKey.includes('gato') || searchKey.includes('cat')) {
@@ -107,16 +106,6 @@ export default class ChatHandler {
       return;
     }
 
-    // encodedSearchKey = searchKey
-    //   .split(' ')
-    //   .reduce((previousValue, currentValue) => {
-    //     if (currentValue.length > 2) {
-    //       return `${previousValue}+${currentValue}`;
-    //     }
-
-    //     return previousValue;
-    //   });
-
     searchUri = `https://pixabay.com/api/?key=${PIXBAY_TOKEN}&q=${searchKey}`;
 
     fetch(searchUri)
@@ -124,8 +113,8 @@ export default class ChatHandler {
       .then(result => {
         const totalHits = result.hits.length;
         if (totalHits > 0) {
-          const hitNumber = Math.floor(Math.random() * totalHits);
-          this.apiBot.sendPhoto(chatId, result.hits[hitNumber].largeImageURL);
+          const randomHit = Math.floor(Math.random() * totalHits);
+          this.apiBot.sendPhoto(chatId, result.hits[randomHit].largeImageURL);
         } else {
           this.apiBot.sendMessage(chatId, 'No hay nada de eso, pringad@.');
         }

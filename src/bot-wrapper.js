@@ -65,9 +65,9 @@ export default class BotWrapper {
    * @param {BotAPI.Message} messageEvent
    */
   async handleMessageEvent(messageEvent) {
+    let messageContent = messageEvent.text;
     const chatId = messageEvent.chat.id;
     const chatType = messageEvent.chat.type;
-    let messageContent = messageEvent.text;
     const isOldMessage = this.isOldMessage(messageEvent);
     const isTextMessage = Boolean(messageEvent.text);
 
