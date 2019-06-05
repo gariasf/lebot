@@ -94,8 +94,9 @@ export default class ChatHandler {
 
   sendMedia(chatId, messageContent) {
     let searchUri = '';
+    // let encodedSearchKey = '';
+
     const searchKey = SEND_MEDIA_REGEX.exec(messageContent).groups.searchKey;
-    const encodedSearchKey = '';
     if (searchKey.includes('gato') || searchKey.includes('cat')) {
       this.sendCatGif(chatId);
       return;
@@ -106,15 +107,15 @@ export default class ChatHandler {
       return;
     }
 
-    encodedSearchKey = searchKey
-      .split(' ')
-      .reduce((previousValue, currentValue) => {
-        if (currentValue.length > 2) {
-          return `${previousValue}+${currentValue}`;
-        }
+    // encodedSearchKey = searchKey
+    //   .split(' ')
+    //   .reduce((previousValue, currentValue) => {
+    //     if (currentValue.length > 2) {
+    //       return `${previousValue}+${currentValue}`;
+    //     }
 
-        return previousValue;
-      });
+    //     return previousValue;
+    //   });
 
     searchUri = `https://pixabay.com/api/?key=${PIXBAY_TOKEN}&q=${searchKey}`;
 
