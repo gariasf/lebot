@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+import schedule from 'node-schedule';
 
 import { BotWrapperInstance, PhrasesHandlerInstance } from './instance-handler';
 import { chunkArray } from './utils';
@@ -214,6 +215,7 @@ export default class ChatHandler {
   /**
    * Handle phrase deletion coming from an inline keyboard callback
    * @param {number} chatId
+   * @param {string} inlineCallbackId
    * @param {string} originalMessageText
    * @param {number} phraseIndexInarray
    */
@@ -361,5 +363,11 @@ export default class ChatHandler {
     const whatToSay = SAY_THIS_REGEX.exec(messageContent).groups.whattosay;
 
     this.sendMessage(chatId, whatToSay);
+  }
+
+  scheduleT3T3(chatId) {
+    schedule.scheduleJob('23 23 * * *', () => {
+      this.sendMessage(chatId, '23:23');
+    });
   }
 }

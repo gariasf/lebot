@@ -18,6 +18,7 @@ import {
 export default class BotWrapper {
   constructor() {
     this.apiBot = null;
+    this.T3T3ChatsList = [];
     this.initBot();
   }
 
@@ -83,6 +84,11 @@ export default class BotWrapper {
     const messageTriggersDisableShutup = BOT_CAN_TALK_REGEX.test(
       messageContent
     );
+
+    if (!this.T3T3ChatsList.includes(chatId)) {
+      this.T3T3ChatsList.push(chatId);
+      this.ChatHandlerInstance.scheduleT3T3(chatId);
+    }
 
     if (!isTextMessage || isOldMessage) {
       console.info('Non-text or old message detected, skipping...');
