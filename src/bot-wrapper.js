@@ -86,7 +86,7 @@ export default class BotWrapper {
       messageContent
     );
 
-    if (!this.T3T3ChatsList.includes(chatId)) {
+    if (!T3T3ChatsList.includes(chatId)) {
       T3T3ChatsList.push(chatId);
       ChatHandlerInstance.scheduleT3T3(chatId);
     }
