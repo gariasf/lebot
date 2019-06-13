@@ -37,17 +37,23 @@ export default class ChatHandler {
       SHUT_UP_REGEX.exec(mesageContent).groups.interval ||
       DEFAULT_SHUTUP_INTERVAL;
 
+    specifiedInterval = Math.floor(specifiedInterval);
+
     const nowEpoch = new Date(Date.now()).getTime();
     const nowPlusIntervalEpoch = nowEpoch + specifiedInterval * 60000;
 
-    this.sendMessage(
-      chatId,
-      `Ok, tienes ${specifiedInterval} minuto${
-        specifiedInterval > 1 ? 's' : ''
-      } antes de que mis palabras te destruyan`
-    );
+    if (specifiedInterval <= 0) {
+      this.sendMessage(chatId, 'Dame un valor válido no? jaja, será monger');
+    } else {
+      this.sendMessage(
+        chatId,
+        `Ok, tienes ${specifiedInterval} minuto${
+          specifiedInterval > 1 ? 's' : ''
+        } antes de que mis palabras te destruyan`
+      );
 
-    this.shutUpUntil = nowPlusIntervalEpoch;
+      this.shutUpUntil = nowPlusIntervalEpoch;
+    }
   }
 
   /**

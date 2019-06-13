@@ -15,10 +15,11 @@ import {
   OLD_MESSAGES_THRESHOLD
 } from './consts';
 
+const T3T3ChatsList = [];
+
 export default class BotWrapper {
   constructor() {
     this.apiBot = null;
-    this.T3T3ChatsList = [];
     this.initBot();
   }
 
@@ -86,8 +87,8 @@ export default class BotWrapper {
     );
 
     if (!this.T3T3ChatsList.includes(chatId)) {
-      this.T3T3ChatsList.push(chatId);
-      this.ChatHandlerInstance.scheduleT3T3(chatId);
+      T3T3ChatsList.push(chatId);
+      ChatHandlerInstance.scheduleT3T3(chatId);
     }
 
     if (!isTextMessage || isOldMessage) {
