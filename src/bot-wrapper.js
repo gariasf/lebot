@@ -15,8 +15,6 @@ import {
   OLD_MESSAGES_THRESHOLD
 } from './consts';
 
-const T3T3ChatsList = [];
-
 export default class BotWrapper {
   constructor() {
     this.apiBot = null;
@@ -86,8 +84,7 @@ export default class BotWrapper {
       messageContent
     );
 
-    if (!T3T3ChatsList.includes(chatId)) {
-      T3T3ChatsList.push(chatId);
+    if (chatType !== 'private') {
       ChatHandlerInstance.scheduleT3T3(chatId);
     }
 
@@ -129,6 +126,7 @@ export default class BotWrapper {
       ChatHandlerInstance.fromCallbackDeletePhrase(
         chatId,
         callbackId,
+        eventOriginatorMessage.message_id,
         eventOriginatorMessage.text,
         Number(eventData.phraseIndexInarray)
       );

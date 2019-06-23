@@ -21,6 +21,7 @@ export default class ChatHandler {
   constructor() {
     this.apiBot = BotWrapperInstance.getBotApiInstance();
     this.shutUpUntil = null;
+    this.T3T3ChatsList = [];
   }
 
   /**
@@ -228,6 +229,7 @@ export default class ChatHandler {
   async fromCallbackDeletePhrase(
     chatId,
     callbackId,
+    messageId,
     originalMessageText,
     phraseIndexInarray
   ) {
@@ -244,7 +246,12 @@ export default class ChatHandler {
     );
 
     if (deletionResult) {
-      this.sendMessage(chatId, 'Frase eliminada!');
+      this.sendMessage(
+        chatId,
+        `Respuesta "${
+          triggerResponseArray[phraseIndexInarray].response
+        }" de "${phraseTrigger}" eliminada!`
+      );
       this.apiBot.answerCallbackQuery(callbackId);
     } else {
       this.sendMessage(
@@ -252,6 +259,8 @@ export default class ChatHandler {
         'A ver, o la frase no existe o me ha explotado el cerebro, una de dos...'
       );
     }
+
+    this.deleteMessage(messageId, chatId);
   }
 
   /**
@@ -372,8 +381,18 @@ export default class ChatHandler {
   }
 
   scheduleT3T3(chatId) {
-    schedule.scheduleJob('23 23 * * *', () => {
-      this.sendMessage(chatId, '23:23');
+    if (!this.T3T3ChatsList.includes(chatId)) {
+      this.T3T3ChatsList.push(chatId);
+
+      schedule.scheduleJob('23 23 * * *', () => {
+        this.sendMessage(chatId, '23:23');
+      });
+    }
+  }
+
+  deleteMessage(messageId, chatId) {
+    this.apiBot.deleteMessage(chatId, messageId).catch(err => {
+      console.error(err);
     });
   }
 }
