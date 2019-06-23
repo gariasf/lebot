@@ -291,12 +291,16 @@ export default class ChatHandler {
    * @param {number} chatId
    */
   async getAndSendKnownPhrase(messageContent, chatId) {
-    const knownPhrase = await PhrasesHandlerInstance.getRandomMatchingPhrase(
-      messageContent
-    );
+    const sendPhraseChange = Math.random() >= 0.5;
 
-    if (knownPhrase) {
-      this.sendMessage(chatId, knownPhrase);
+    if (sendPhraseChange) {
+      const knownPhrase = await PhrasesHandlerInstance.getRandomMatchingPhrase(
+        messageContent
+      );
+
+      if (knownPhrase) {
+        this.sendMessage(chatId, knownPhrase);
+      }
     }
   }
 
